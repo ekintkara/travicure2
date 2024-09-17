@@ -1,0 +1,23 @@
+
+ import "./account.zmodel"  
+ import "./troop.zmodel"  
+ import "./resource.zmodel"  
+ import "./building.zmodel"  
+
+model Village {
+
+    id                String        @id @default(uuid())  
+    name            String          
+    coordinateX  Float            
+    coordinateY  Float            
+
+accountId  String          
+    account      Account?      @relation(fields: [accountId], references: [id], name:"account")  
+ 
+    troops        Troop[]      @relation("village")  
+    resources  Resource[]  @relation("village")  
+    buildings  Building[]  @relation("village")  
+      dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

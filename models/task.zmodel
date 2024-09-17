@@ -1,0 +1,18 @@
+
+ import "./account.zmodel"  
+
+model Task {
+
+    id                String        @id @default(uuid())  
+    type            String          
+    status        String          
+    startTime  String          
+    endTime      String          
+
+accountId  String          
+    account      Account?      @relation(fields: [accountId], references: [id], name:"account")  
+ 
+      dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}

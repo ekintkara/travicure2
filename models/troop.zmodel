@@ -1,0 +1,16 @@
+
+ import "./village.zmodel"  
+
+model Troop {
+
+    id                String        @id @default(uuid())  
+    type            String          
+    quantity    Float            
+
+villageId  String          
+    village      Village?      @relation(fields: [villageId], references: [id], name:"village")  
+ 
+      dateCreated DateTime @default(now())
+      dateUpdated DateTime @updatedAt  @default(now())
+      @@allow("all", true)
+}
