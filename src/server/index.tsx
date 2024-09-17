@@ -22,7 +22,7 @@ const appRouter = Trpc.mergeRouters(
     rag: RagRouter,
     socket: SocketRouter,
     upload: UploadRouter,
-  })
+  }),
 )
 
 export type AppRouter = typeof appRouter
@@ -30,4 +30,3 @@ export type AppRouter = typeof appRouter
 export const Server = {
   appRouter,
 }
-
