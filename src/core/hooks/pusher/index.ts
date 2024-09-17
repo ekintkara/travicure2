@@ -26,7 +26,7 @@ export const usePusherClient = () => {
 
   const { user } = useUserContext()
 
-  const { data, isError } = Api.configuration.getPublic.useQuery()
+  const { data, isError } = Api.getPublic.useQuery()
 
   useEffect(() => {
     if (data && !isError) {

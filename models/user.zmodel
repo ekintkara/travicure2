@@ -1,11 +1,7 @@
 import "./account.zmodel";
 import "./session.zmodel";
-
 import './organizationRole.zmodel'
 
-import './account.zmodel'
-
-import "./organizationRole.zmodel";
 
 enum UserStatus {
     INVITED
@@ -29,12 +25,11 @@ model User {
     password          String?            @password @omit
     dateCreated       DateTime           @default(now())
     dateUpdated       DateTime           @updatedAt @default(now())
-    accounts          Account[]
+    accounts          Account[] @relation("user")
     sessions          Session[]
     
     organizationRoles OrganizationRole[]
 
-accounts    Account[]  @relation("user")  
 
 @@auth()
     @@allow("all", auth().id == this.id)
@@ -43,4 +38,6 @@ accounts    Account[]  @relation("user")
     //we only allow that user to register if they don't create an admin role
     @@allow("create", globalRole != 'ADMIN')
     @@allow("read", true)
+    @@allow("all", accounts?[auth().id == userId])
+
 }

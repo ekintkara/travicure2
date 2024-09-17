@@ -21,11 +21,16 @@ import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
+import { Prisma } from '@prisma/client'
 
 export default function ReportsPage() {
   const router = useRouter()
   const params = useParams<any>()
-  const { user } = useUserContext()
+  const { user } = useUserContext() as {
+    user: Prisma.UserGetPayload<{
+      include: { accounts: { include: { villages: true } } }
+    }>
+  }
   const { enqueueSnackbar } = useSnackbar()
 
   const [dateRange, setDateRange] = useState<
@@ -41,7 +46,7 @@ export default function ReportsPage() {
     refetch,
   } = Api.task.findMany.useQuery({
     where: {
-      accountId: user?.accounts?.[0]?.id,
+      accountId: user.accounts?.[0]?.id,
       ...(dateRange &&
         dateRange[0] &&
         dateRange[1] && {
@@ -134,13 +139,14 @@ export default function ReportsPage() {
               allowClear
               onChange={value => setVillage(value)}
             >
-              {user?.accounts?.[0]?.villages?.map(village => (
+              {user.accounts?.[0]?.villages?.map(village => (
                 <Select.Option key={village.id} value={village.name}>
                   {village.name}
                 </Select.Option>
               ))}
             </Select>
           </Col>
+
           <Col xs={24} sm={12} md={6}>
             <Input
               placeholder="Search logs"

@@ -17,24 +17,20 @@ enum UserStatus {
   VERIFIED
 }
 
-/// @@allow('all', auth().id == user.id)
+/// @@allow('all', auth().id == userId && resourcePriority == null && buildingUpgradeSequence == null)
 model Account {
-  id                       String  @id() @default(uuid())
-  userId                   String
-  type                     String
-  provider                 String
-  providerAccountId        String
-  refresh_token            String?
-  access_token             String?
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String?
-  session_state            String?
-  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refresh_token_expires_in Int?
-
-  @@unique([provider, providerAccountId])
+  id                      String    @id() @default(uuid())
+  username                String
+  email                   String
+  passwordHash            String
+  resourcePriority        String?
+  buildingUpgradeSequence Json?
+  userId                  String
+  user                    User?     @relation("user", fields: [userId], references: [id])
+  villages                Village[] @relation("account")
+  tasks                   Task[]    @relation("account")
+  dateCreated             DateTime  @default(now())
+  dateUpdated             DateTime  @default(now()) @updatedAt()
 }
 
 /// @@auth
@@ -42,6 +38,7 @@ model Account {
 /// @@allow('all', auth().globalRole == 'ADMIN')
 /// @@allow('create', globalRole != 'ADMIN')
 /// @@allow('read', true)
+/// @@allow('all', accounts?[auth().id == userId])
 model User {
   id                String             @id() @default(uuid())
   name              String?
@@ -57,10 +54,9 @@ model User {
   password          String?
   dateCreated       DateTime           @default(now())
   dateUpdated       DateTime           @default(now()) @updatedAt()
-  accounts          Account[]
+  accounts          Account[]          @relation("user")
   sessions          Session[]
   organizationRoles OrganizationRole[]
-  pushNotifications PushNotification[] @relation("user")
 }
 
 /// @@allow('all', auth().id == user.id)
@@ -102,14 +98,67 @@ model Organization {
 }
 
 /// @@allow('all', true)
-model PushNotification {
-  id           String   @id() @default(uuid())
-  endpoint     String
-  subscription String
-  dateCreated  DateTime @default(now())
-  dateUpdated  DateTime @default(now()) @updatedAt()
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], name: "user")
+model Village {
+  id          String     @id() @default(uuid())
+  name        String
+  coordinateX Float
+  coordinateY Float
+  accountId   String
+  account     Account?   @relation(fields: [accountId], references: [id], name: "account")
+  troops      Troop[]    @relation("village")
+  resources   Resource[] @relation("village")
+  buildings   Building[] @relation("village")
+  dateCreated DateTime   @default(now())
+  dateUpdated DateTime   @default(now()) @updatedAt()
+}
+
+/// @@allow('all', true)
+model Troop {
+  id          String   @id() @default(uuid())
+  type        String
+  quantity    Float
+  villageId   String
+  village     Village? @relation(fields: [villageId], references: [id], name: "village")
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @default(now()) @updatedAt()
+}
+
+/// @@allow('all', true)
+model Resource {
+  id          String   @id() @default(uuid())
+  type        String
+  quantity    Float
+  capacity    Float
+  villageId   String
+  village     Village? @relation(fields: [villageId], references: [id], name: "village")
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @default(now()) @updatedAt()
+}
+
+/// @@allow('all', true)
+model Building {
+  id          String   @id() @default(uuid())
+  type        String
+  level       Float
+  coordinateX Float
+  coordinateY Float
+  villageId   String
+  village     Village? @relation(fields: [villageId], references: [id], name: "village")
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @default(now()) @updatedAt()
+}
+
+/// @@allow('all', true)
+model Task {
+  id          String   @id() @default(uuid())
+  type        String
+  status      String
+  startTime   String
+  endTime     String
+  accountId   String
+  account     Account? @relation(fields: [accountId], references: [id], name: "account")
+  dateCreated DateTime @default(now())
+  dateUpdated DateTime @default(now()) @updatedAt()
 }
 
 /// @@allow('all', true)

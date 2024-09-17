@@ -24,6 +24,14 @@ import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
 
+type AccountType = {
+  id: string
+  userId: string
+  resourcePriority?: string
+  buildingUpgradeSequence?: any[]
+  villages: any[]
+}
+
 export default function BotConfigurationPage() {
   const router = useRouter()
   const params = useParams<any>()
@@ -34,7 +42,7 @@ export default function BotConfigurationPage() {
   const { data: account, isLoading } = Api.account.findFirst.useQuery({
     where: { userId: user?.id },
     include: { villages: true },
-  })
+  }) as { data: AccountType | undefined; isLoading: boolean }
 
   const { mutateAsync: updateAccount } = Api.account.update.useMutation()
 
@@ -46,24 +54,28 @@ export default function BotConfigurationPage() {
   useEffect(() => {
     if (account) {
       form.setFieldsValue({
-        resourcePriority: account.resourcePriority || 'wood',
-        buildingUpgradeSequence: account.buildingUpgradeSequence || [],
+        resourcePriority: account.resourcePriority ?? 'wood',
+        buildingUpgradeSequence: account.buildingUpgradeSequence ?? [],
       })
       setBotConfig({
-        resourcePriority: account.resourcePriority || 'wood',
-        buildingUpgradeSequence: account.buildingUpgradeSequence || [],
+        resourcePriority: account.resourcePriority ?? 'wood',
+        buildingUpgradeSequence: account.buildingUpgradeSequence ?? [],
       })
     }
   }, [account])
 
   const onFinish = async (values: any) => {
     try {
+      const updateData: Partial<typeof values> = {}
+      if (values.resourcePriority !== undefined) {
+        updateData.resourcePriority = values.resourcePriority
+      }
+      if (values.buildingUpgradeSequence !== undefined) {
+        updateData.buildingUpgradeSequence = values.buildingUpgradeSequence
+      }
       await updateAccount({
         where: { id: account?.id },
-        data: {
-          resourcePriority: values.resourcePriority,
-          buildingUpgradeSequence: values.buildingUpgradeSequence,
-        },
+        data: updateData,
       })
       enqueueSnackbar('Bot configuration saved successfully', {
         variant: 'success',

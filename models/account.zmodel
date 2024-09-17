@@ -9,13 +9,17 @@ model Account {
     username    String          
     email          String          
     passwordHash  String          
+    resourcePriority String?
+    buildingUpgradeSequence Json?
 
-userId        String          
-    user            User?            @relation(fields: [userId], references: [id], name:"user")  
+    userId        String          
+    user            User?            @relation("user", fields: [userId], references: [id])  
+
  
     villages    Village[]  @relation("account")  
     tasks          Task[]        @relation("account")  
-      dateCreated DateTime @default(now())
-      dateUpdated DateTime @updatedAt  @default(now())
-      @@allow("all", true)
+    dateCreated DateTime @default(now())
+    dateUpdated DateTime @updatedAt  @default(now())
+    @@allow("all", auth().id == userId && resourcePriority == null && buildingUpgradeSequence == null)
 }
+

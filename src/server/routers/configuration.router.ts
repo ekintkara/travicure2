@@ -19,7 +19,6 @@ export const ConfigurationRouter = Trpc.createRouter({
       return variablesPublic
     } catch (error) {
       console.error('Error in getPublic procedure:', error)
-      ctx.log.error('Error in getPublic procedure', { error })
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message: 'An unexpected error occurred',

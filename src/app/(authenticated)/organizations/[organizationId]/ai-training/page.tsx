@@ -62,7 +62,7 @@ export default function AITrainingPage() {
       if (validKeys.length > 0) {
         await fineTuneAI({
           prompt: `Fine-tune the AI model with the following playstyle: ${playstyle}`,
-          tags: validKeys,
+          attachmentUrls: validKeys,
         })
         enqueueSnackbar('AI model fine-tuned successfully', {
           variant: 'success',

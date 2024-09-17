@@ -15,6 +15,7 @@ import { useSnackbar } from 'notistack'
 import dayjs from 'dayjs'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem/layouts/Page.layout'
+import { Prisma } from '@prisma/client'
 
 export default function HomePage() {
   const router = useRouter()
@@ -34,7 +35,10 @@ export default function HomePage() {
       orderBy: { dateCreated: 'desc' },
       take: 5,
       include: { account: true },
-    })
+    }) as {
+      data: Prisma.TaskGetPayload<{ include: { account: true } }>[]
+      isLoading: boolean
+    }
 
   if (isLoadingAccounts || isLoadingTasks) {
     return (
@@ -97,7 +101,9 @@ export default function HomePage() {
         <Title level={4}>Recent Bot Actions</Title>
         <List
           dataSource={recentTasks}
-          renderItem={task => (
+          renderItem={(
+            task: Prisma.TaskGetPayload<{ include: { account: true } }>,
+          ) => (
             <List.Item>
               <List.Item.Meta
                 title={`${task.type} - ${task.status}`}
